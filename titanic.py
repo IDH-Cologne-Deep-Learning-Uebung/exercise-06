@@ -1,5 +1,6 @@
 import pandas as pd
-
+import keras 
+from keras import layers
 # read the data from a CSV file (included in the repository)
 df = pd.read_csv("data/train.csv")
 
@@ -25,24 +26,17 @@ df = df.dropna()
 y = df["Survived"]
 x = df.drop("Survived", axis=1)
 
-# 2. Secondly, we need to split training and test data. This can be done with the function [`sklearn.model_selection.train_test_split()`](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html#sklearn.model_selection.train_test_split) from the `scikit-learn` library.
+model = keras.Sequential()
+model.add(layers.InputLayer(input_shape=(9,)))
+#model.add(layers.Dense(10,activation="softmax"))
 
-from sklearn.model_selection import train_test_split
+model.add(layers.Dense(20,activation="sigmoid"))
+model.add(layers.Dense(10,activation="relu"))
+model.add(layers.Dense(1, activation="softmax"))
 
-x_train, x_test, y_train, y_test = train_test_split(x, y, random_state=0, test_size=0.1)
+model.compile(loss="binary_crossentropy", optimizer="sgd", metrics=["accuracy"])
 
-# 3. Finally, initialize a LogisticRegression object with a `liblinear` solver, and fit it to the training data.
-from sklearn.linear_model import LogisticRegression
 
-classifier = LogisticRegression(random_state=0, solver="liblinear")
-classifier.fit(x_train, y_train)
+model.fit(x,y, epochs=100,batch_size=5)
 
-# 4. Lastly, calculate precision/recall/f-score on the test data using the appropriate functions from `scikit-learn`.
-y_pred = classifier.predict(x_test)
-
-from sklearn.metrics import precision_score, recall_score, f1_score
-
-print("precision: "+ str(precision_score(y_test, y_pred)))
-print("recall: "+ str(recall_score(y_test, y_pred)))
-print("f1: "+ str(f1_score(y_test, y_pred)))
 
