@@ -1,6 +1,8 @@
 import pandas as pd
 import keras 
 from keras import layers
+from keras.optimizers import SGD
+
 # read the data from a CSV file (included in the repository)
 df = pd.read_csv("data/train.csv")
 
@@ -33,10 +35,8 @@ model.add(layers.InputLayer(input_shape=(9,)))
 model.add(layers.Dense(20,activation="sigmoid"))
 model.add(layers.Dense(10,activation="relu"))
 model.add(layers.Dense(1, activation="softmax"))
-
-model.compile(loss="binary_crossentropy", optimizer="sgd", metrics=["accuracy"])
-
+opt = SGD(lr=0.01)
+model.compile(loss="binary_crossentropy",optimizer=  opt , metrics=["accuracy"])
 
 model.fit(x,y, epochs=100,batch_size=5)
-
 
