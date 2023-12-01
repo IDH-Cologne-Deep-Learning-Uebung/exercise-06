@@ -24,25 +24,33 @@ df = df.dropna()
 # 1. As a next step, we need to split the input features from the training labels. This can be done easily with `pandas`.
 y = df["Survived"]
 x = df.drop("Survived", axis=1)
-
+#print(x.shape)
+#print(y.shape)
 # 2. Secondly, we need to split training and test data. This can be done with the function [`sklearn.model_selection.train_test_split()`](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html#sklearn.model_selection.train_test_split) from the `scikit-learn` library.
 
 from sklearn.model_selection import train_test_split
 
 x_train, x_test, y_train, y_test = train_test_split(x, y, random_state=0, test_size=0.1)
 
-# 3. Finally, initialize a LogisticRegression object with a `liblinear` solver, and fit it to the training data.
-from sklearn.linear_model import LogisticRegression
 
-classifier = LogisticRegression(random_state=0, solver="liblinear")
-classifier.fit(x_train, y_train)
+from tensorflow import keras
+from tensorflow.keras import layers
 
-# 4. Lastly, calculate precision/recall/f-score on the test data using the appropriate functions from `scikit-learn`.
-y_pred = classifier.predict(x_test)
+#first model, one hidden layer, 10 neurons 
+#model = keras.Sequential()
+#model.add(layers.Input(shape=(9,)))
+#model.add(layers.Dense(10, activation="softmax"))
+#model.add(layers.Dense(1, activation="softmax"))
 
-from sklearn.metrics import precision_score, recall_score, f1_score
+#second model, two hidden layers, first 20, second 10 neurons 
+model=keras.Sequential()
+model.add(layers.Input(shape=(9,)))
+model.add(layers.Dense(20, activation="sigmoid"))
+model.add(layers.Dense(10, activation="relu"))
+model.add(layers.Dense(1, activation="softmax"))
 
-print("precision: "+ str(precision_score(y_test, y_pred)))
-print("recall: "+ str(recall_score(y_test, y_pred)))
-print("f1: "+ str(f1_score(y_test, y_pred)))
+# compile it
+model.compile(loss="mean_squared_error",optimizer ="sgd",metrics =["accuracy"]) #Muesste der F-Score selbst berechnet werden?
 
+# train it
+model.fit(x_train , y_train , epochs =20 , batch_size =50)
