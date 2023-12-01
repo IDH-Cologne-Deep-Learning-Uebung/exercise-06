@@ -1,7 +1,9 @@
 import pandas as pd
+from sklearn.model_selection import train_test_split
+
 
 # read the data from a CSV file (included in the repository)
-df = pd.read_csv("data/train.csv")
+df = pd.read_csv("exercise-06/data/train.csv")
 
 # ## Step 3
 # 1. Remove the columns "Name" and "PassengerId" (because we know they are irrelevant for our problem).
@@ -25,24 +27,73 @@ df = df.dropna()
 y = df["Survived"]
 x = df.drop("Survived", axis=1)
 
+#print("x", df)
+
 # 2. Secondly, we need to split training and test data. This can be done with the function [`sklearn.model_selection.train_test_split()`](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html#sklearn.model_selection.train_test_split) from the `scikit-learn` library.
 
-from sklearn.model_selection import train_test_split
+#from tensorflow import keras
+#from tensorflow.keras import layers
+import keras
+from keras import layers
+#from keras import ops
 
-x_train, x_test, y_train, y_test = train_test_split(x, y, random_state=0, test_size=0.1)
+#1
+model = keras.Sequential()
+model.add(layers.Input(shape=(9,)))
+#2+3
+model.add(layers.Dense(10, activation="sigmoid"))
+model.add(layers.Dense(20, activation="relu"))
+#model.add(layers.Dense(10, activation="softmax"))
+model.add(layers.Dense(1, activation="softmax"))  #out?
 
-# 3. Finally, initialize a LogisticRegression object with a `liblinear` solver, and fit it to the training data.
-from sklearn.linear_model import LogisticRegression
+#test
+x_train, x_test, y_train, y_test = train_test_split(x, y, random_state=0, test_size=0.5)
 
-classifier = LogisticRegression(random_state=0, solver="liblinear")
-classifier.fit(x_train, y_train)
+model.compile(loss="mean_squared_error",optimizer="sgd",metrics=["accuracy"])
+#out = model.fit(x_train, y_train, epochs=100, batch_size=5)
+model.fit(x_train, y_train, epochs=100, batch_size=10)
+
+
+
+#evaluate
+y_pred = model.predict(x_train)
+
+#test to (x,1)
+y_test = y_test.values.reshape(y_test.shape[0],1)
+
+print(y_test.shape) #shape (x,)
+#print(y_test)
+print(y_pred.shape) #shape (x ,x)
+print
+#print(y_pred)
+
+#result = model.evaluate(y_test, y_pred, batch_size=10) #??
+#print(result)
+
 
 # 4. Lastly, calculate precision/recall/f-score on the test data using the appropriate functions from `scikit-learn`.
-y_pred = classifier.predict(x_test)
+
+#problem: test und prediction nicht gleich Lang. Wegen split.
 
 from sklearn.metrics import precision_score, recall_score, f1_score
+
+#y_pred = y_pred.reshape(x_test[0],y_pred[1])
 
 print("precision: "+ str(precision_score(y_test, y_pred)))
 print("recall: "+ str(recall_score(y_test, y_pred)))
 print("f1: "+ str(f1_score(y_test, y_pred)))
 
+#
+#ValueError: Found input variables with inconsistent numbers of samples: [286, 428]
+
+#its over 0,56. But it seems it doesn't "learn".
+
+
+
+
+
+#für model.evaluate
+#evaluate problem: Data cardinality is ambiguous:
+#  x sizes: 72
+#  y sizes: 642
+#Make sure all arrays contain the same number of samples.
