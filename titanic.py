@@ -35,8 +35,10 @@ model.add(layers.InputLayer(input_shape=(9,)))
 model.add(layers.Dense(20,activation="sigmoid"))
 model.add(layers.Dense(10,activation="relu"))
 model.add(layers.Dense(1, activation="softmax"))
-opt = SGD(lr=0.01)
+opt = SGD(learning_rate=0.01)
 model.compile(loss="binary_crossentropy",optimizer=  opt , metrics=["accuracy"])
 
-model.fit(x,y, epochs=100,batch_size=5)
+model.fit(x,y, epochs=100,batch_size=100)
+
+# i cant get the accuracy up :( it stays allways the same i do not know why)
 
