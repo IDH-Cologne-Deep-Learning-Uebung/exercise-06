@@ -1,4 +1,11 @@
 import pandas as pd
+import tensorflow as tf
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import accuracy_score
+import numpy as np
+import os
+
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 # read the data from a CSV file (included in the repository)
 df = pd.read_csv("data/train.csv")
@@ -31,18 +38,48 @@ from sklearn.model_selection import train_test_split
 
 x_train, x_test, y_train, y_test = train_test_split(x, y, random_state=0, test_size=0.1)
 
-# 3. Finally, initialize a LogisticRegression object with a `liblinear` solver, and fit it to the training data.
-from sklearn.linear_model import LogisticRegression
 
-classifier = LogisticRegression(random_state=0, solver="liblinear")
-classifier.fit(x_train, y_train)
+scaler = StandardScaler()
+x_train = scaler.fit_transform(x_train)
+x_test = scaler.transform(x_test)
 
-# 4. Lastly, calculate precision/recall/f-score on the test data using the appropriate functions from `scikit-learn`.
-y_pred = classifier.predict(x_test)
+input_shape = (9,)
 
-from sklearn.metrics import precision_score, recall_score, f1_score
+def model1():
+    model = tf.keras.Sequential([
+        tf.keras.layers.Dense(20, activation='sigmoid', input_shape=input_shape),
+        tf.keras.layers.Dense(10, activation='relu'),
+        tf.keras.layers.Dense(3, activation='softmax')  # Output layer with 3 classes and softmax activation
+    ])
 
-print("precision: "+ str(precision_score(y_test, y_pred)))
-print("recall: "+ str(recall_score(y_test, y_pred)))
-print("f1: "+ str(f1_score(y_test, y_pred)))
+    # Compile the model
+    model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 
+    # Train the model
+    model.fit(x_train, y_train, epochs=10, batch_size=32, validation_data=(x_test, y_test))
+
+    # Evaluate the model on test data
+    y_pred = model.predict(x_test)
+    y_pred_classes = np.argmax(y_pred, axis=1)
+    accuracy = accuracy_score(y_test, y_pred_classes)
+    print(f"Test Accuracy: {accuracy}")
+
+def model2():
+    model = tf.keras.Sequential([
+        tf.keras.layers.Dense(10, activation='sigmoid', input_shape=input_shape),
+        tf.keras.layers.Dense(2, activation='softmax')  # Output layer with 2 neurons for softmax
+    ])
+
+    # Compile the model
+    model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+
+    # Train the model
+    model.fit(x_train, y_train, epochs=10, batch_size=32, validation_data=(x_test, y_test))
+
+    # Evaluate the model on test data
+    y_pred = model.predict(x_test)
+    y_pred_classes = np.argmax(y_pred, axis=1)
+    accuracy = accuracy_score(y_test, y_pred_classes)
+    print(f"Test Accuracy: {accuracy}")
+model1()
+#model2()
