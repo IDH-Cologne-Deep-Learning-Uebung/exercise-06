@@ -24,7 +24,7 @@ df = df.dropna()
 # 1. As a next step, we need to split the input features from the training labels. This can be done easily with `pandas`.
 y = df["Survived"]
 x = df.drop("Survived", axis=1)
-
+print(df)
 # 2. Secondly, we need to split training and test data. This can be done with the function [`sklearn.model_selection.train_test_split()`](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html#sklearn.model_selection.train_test_split) from the `scikit-learn` library.
 
 from sklearn.model_selection import train_test_split
@@ -45,4 +45,21 @@ from sklearn.metrics import precision_score, recall_score, f1_score
 print("precision: "+ str(precision_score(y_test, y_pred)))
 print("recall: "+ str(recall_score(y_test, y_pred)))
 print("f1: "+ str(f1_score(y_test, y_pred)))
+
+
+import numpy as np
+import keras
+from tensorflow.keras import layers
+
+# model architecture
+model = keras.Sequential()
+model.add(layers.Input(shape(=10,)))
+model.add(layers.Dense(1,activation="softmax"))
+
+import platform
+
+
+
+
+
 
