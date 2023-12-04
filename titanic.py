@@ -1,48 +1,70 @@
+from itertools import _Predicate
 import pandas as pd
+import numpy as np
+import tensorflow as tf
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import precision_score, recall_score, f1_score
+from sklearn.preprocessing import StandardScaler
+
 
 # read the data from a CSV file (included in the repository)
 df = pd.read_csv("data/train.csv")
 
-# ## Step 3
-# 1. Remove the columns "Name" and "PassengerId" (because we know they are irrelevant for our problem).
-df = df.drop("Name", axis=1)
-df = df.drop("PassengerId", axis=1)
-
-# 2. Convert all non-numeric columns into numeric ones. The non-numeric columns are "Sex", "Cabin", "Ticket" and "Embarked".
-def make_numeric(df):
-  df["Sex"] = pd.factorize(df["Sex"])[0]
-  df["Cabin"] = pd.factorize(df["Cabin"])[0]
-  df["Ticket"] = pd.factorize(df["Ticket"])[0]
-  df["Embarked"] = pd.factorize(df["Embarked"])[0]
-  return df
-df = make_numeric(df)
-
-# 3. Remove all rows that contain missing values
-df = df.dropna()
-
-# ## Step 4
-# 1. As a next step, we need to split the input features from the training labels. This can be done easily with `pandas`.
 y = df["Survived"]
 x = df.drop("Survived", axis=1)
 
-# 2. Secondly, we need to split training and test data. This can be done with the function [`sklearn.model_selection.train_test_split()`](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html#sklearn.model_selection.train_test_split) from the `scikit-learn` library.
-
-from sklearn.model_selection import train_test_split
-
 x_train, x_test, y_train, y_test = train_test_split(x, y, random_state=0, test_size=0.1)
 
-# 3. Finally, initialize a LogisticRegression object with a `liblinear` solver, and fit it to the training data.
-from sklearn.linear_model import LogisticRegression
+scaler = StandardScaler()
+x_train_scaled = scaler.fit_transform(x_train)
+x_test_scaled = scaler.transform(x_test)
 
-classifier = LogisticRegression(random_state=0, solver="liblinear")
-classifier.fit(x_train, y_train)
+input_shape = x_train_scaled.shape[1]
 
-# 4. Lastly, calculate precision/recall/f-score on the test data using the appropriate functions from `scikit-learn`.
-y_pred = classifier.predict(x_test)
+model_1 = Sequential([
+    Dense(units=10, activation='relu', input_shape=(input_shape,)),
+    Dense(units=2, activation='softmax')  
+])
 
-from sklearn.metrics import precision_score, recall_score, f1_score
+model_1.compile(optimizer=Adam(), loss=SparseCategoricalCrossentropy(), metrics=['accuracy'])
+model_1.fit(x_train_scaled, y_train, epochs=10, batch_size=32, validation_split=0.1)
 
-print("precision: "+ str(precision_score(y_test, y_pred)))
-print("recall: "+ str(recall_score(y_test, y_pred)))
-print("f1: "+ str(f1_score(y_test, y_pred)))
+# Evaluate the model
+accuracy_1 = model_1.evaluate(x_test_scaled, y_test)
+print(f"\nAccuracy (Model 1): {accuracy_1[1]}")
 
+# Make predictions
+y_pred_proba_1 = model_1.predict(x_test_scaled)
+y_pred_1 = np.argmax(y_pred_proba_1, axis=1)
+
+# Evaluate precision, recall, and f1 score
+precision_1 = precision_score(y_test, y_pred_1)
+recall_1 = recall_score(y_test, y_pred_1)
+f1_1 = f1_score(y_test, y_pred_1)
+print("Precision (Model 1):"+ str(precision_score(y_test, y_pred)))
+print("Recall (Model 1):"+ str(recall_score(y_test, _Predicate)))
+print("F1 Score (Model 1):"+ str(f1_score(y_test, _Predicate)))
+model_2 = Sequential([
+    Dense(units=20, activation='sigmoid', input_shape=(input_shape,)),
+    Dense(units=10, activation='relu'),
+    Dense(units=2, activation='softmax')  
+])
+
+model_2.compile(optimizer=Adam(), loss=SparseCategoricalCrossentropy(), metrics=['accuracy'])
+model_2.fit(x_train_scaled, y_train, epochs=10, batch_size=32, validation_split=0.1)
+
+# Evaluate the model
+accuracy_2 = model_2.evaluate(x_test_scaled, y_test)
+print(f"\nAccuracy (Model 2): {accuracy_2[1]}")
+
+# Make predictions
+y_pred_proba_2 = model_2.predict(x_test_scaled)
+y_pred_2 = np.argmax(y_pred_proba_2, axis=1)
+
+# Evaluate precision, recall, and f1 score
+precision_2 = precision_score(y_test, y_pred_2)
+recall_2 = recall_score(y_test, y_pred_2)
+f1_2 = f1_score(y_test, y_pred_2)
+print("Precision (Model 2):"+ str(precision_score(y_test, y_pred)))
+print("Recall (Model 2):"+ str(recall_score(y_test, y_pred)))
+print("F1 Score (Model 2):"+ str(f1_score(y_test, _Predicate)))
